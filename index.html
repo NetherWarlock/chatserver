@@ -1,0 +1,70 @@
+<html>
+
+<body>
+
+
+    <p id="swear filter"></p>
+    <label for="username">set username:</label><br>
+    <input type="text" id="username" name="username">
+    <input type="button" onclick="setUsername();" value="Submit">
+    <br>
+    <label for="message">message here:</label><br>
+    <input type="text" id="message" name="message">
+    <input type="button" onclick="sendMessage();" value="Submit">
+    <div id="chat"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let username1 = "unnamed"
+        const swears = ["fuck", "shit", "dick", "bastard", "sex", "bitch", "Fuck", "Shit", "Dick", "Bastard", "Sex", "Bitch", "cum", "Cum", "ass", "Ass"]
+        const socket = io();
+        const setUsername = () => {
+            if (checkforswear(document.getElementById('username').value) != true) {
+                username1 = document.getElementById('username').value
+                document.getElementById('username').value = ''
+            } else {
+                username1 = ''
+                document.getElementById('swear filter').innerHTML = "Sorry, but you can't say that here"; setTimeout(() => { document.getElementById('swear filter').innerHTML = "" }, 3000);
+
+            }
+        }
+        const checkforswear = (input2) => {
+            let counter = 0;
+            let containsswear = false;
+            while (counter < (swears.length)) {
+                if (input2.includes(swears[counter])) {
+                    containsswear = true
+                }
+                counter = counter + 1;
+            }
+            if (containsswear == true) {
+                return true
+            } else {
+                return false
+            }
+            containsswear = false;
+        }
+        const sendMessage = () => {
+            const inputEl = document.getElementById('message')
+                if (checkforswear(inputEl.value) != true) {
+                    document.getElementById("chat").innerHTML += "<br>" + `${username1}: ${inputEl.value}`;
+                    socket.emit('newmessage', `${username1}: ${inputEl.value}`, (data) => {
+
+                    });
+                    inputEl.value = ''
+                } else {
+                    inputEl.value = ''
+                    document.getElementById('swear filter').innerHTML = "Sorry, but you can't say that here"; setTimeout(() => { document.getElementById('swear filter').innerHTML = "" }, 3000);
+                }
+            }
+            socket.on('reciever', function cool(a) {
+                document.getElementById("chat").innerHTML += "<br>" + a;
+            })
+        
+
+
+
+    </script>
+
+</body>
+
+</html>
